@@ -13,7 +13,7 @@ The file will be downloaded if not presentable (eg. `.dll`, `.exe` etc.)
 ## Installation
 Install the latest version with [Composer](https://getcomposer.org).
 ```bash
-$ composer require xy2z/philer
+$ composer require xy2z/file-render
 ```
 
 
