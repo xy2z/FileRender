@@ -17,10 +17,19 @@ $ composer require xy2z/file-render
 ```
 
 
-## Usage
+## Basic Usage
 ```php
 use xy2z\FileRender\FileRender;
 
 $fr = new FileRender('/path/to/file.png');
+$fr->render();
+```
+
+
+### Force Download
+```php
+$fr = new FileRender('/path/to/file.png');
+$fr->force_download = true;
+$fr->download_filename = 'renamed.png';
 $fr->render();
 ```

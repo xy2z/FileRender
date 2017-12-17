@@ -40,12 +40,31 @@
 		protected static $extensions = array();
 
 		/**
+		 * Force download file
+		 *
+		 * @var boolean
+		 */
+		public $force_download = false;
+
+		/**
+		 * Overwrite filename when downloading
+		 *
+		 * @var null
+		 */
+		public $download_filename = null;
+
+		/**
 		 * Constructor
 		 *
 		 * @param string $path Full/relative file path.
 		 */
 		public function __construct(string $path) {
 			$this->path = $path;
+
+			if (!file_exists($path)) {
+				throw new \Exception('File not found: ' . $path);
+			}
+
 			$this->pathinfo = pathinfo($this->path);
 
 			// Set extensions.
@@ -75,25 +94,35 @@
 		/**
 		 * Render or download the file.
 		 *
-		 * @return void
 		 */
 		public function render() {
 			header('Content-Length: ' . filesize($this->path));
 
 			// Check if the file is a known extension, that should be rendered (instead of downloaded)
-			foreach (self::$extensions as $type => $type_extensions) {
-				if (in_array(strtolower($this->pathinfo['extension']), $type_extensions)) {
-					header('Content-Disposition: inline; filename="' . $this->pathinfo['basename'] . '"');
-					header('Content-type: ' . $this->get_mime_type($type));
-					readfile($this->path);
-					return;
+			if (!$this->force_download) {
+				foreach (self::$extensions as $type => $type_extensions) {
+					if (in_array(strtolower($this->pathinfo['extension']), $type_extensions)) {
+						header('Content-Disposition: inline; filename="' . $this->pathinfo['basename'] . '"');
+						header('Content-type: ' . $this->get_mime_type($type));
+						readfile($this->path);
+						return;
+					}
 				}
 			}
 
 			// Not a known filetype, so it should be downloaded.
+			$this->download();
+		}
+
+		/**
+		 * Download the file
+		 *
+		 */
+		protected function download() {
+			$filename = $this->download_filename ?? $this->pathinfo['basename'];
 			header('Content-Type: application/octet-stream');
 			header('Content-Transfer-Encoding: Binary');
-			header('Content-Disposition: attachment; filename="' . $this->pathinfo['basename'] . '"');
+			header('Content-Disposition: attachment; filename="' . $filename . '"');
 			readfile($this->path);
 		}
 
